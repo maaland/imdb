@@ -12,7 +12,7 @@ class FileReader():
     def read_words(self, path):
         os.chdir(path)
         for file in glob.glob('0_3.txt'):
-            return set([word for line in open(file, encoding='utf-8') for word in line.split()])
+            return set([word.lower() for line in open(file, encoding='utf-8') for word in line.split()])
 
 
 fr = FileReader()
