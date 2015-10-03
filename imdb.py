@@ -12,6 +12,9 @@ class FileReader():
         self.wordSet = []
         self.wordDict = {}
         self.reviews = 0
+        self.stopWords = open('C:/Users/mariu_000/PycharmProjects/imdb/data/data/stop_words.txt', encoding='utf-8').read()
+
+
 
 
     def read_words(self, path):
@@ -37,6 +40,7 @@ fr = FileReader()
 fr.read_words('C:/Users/mariu_000/PycharmProjects/imdb/data/data/subset/train/neg')
 #print (fr.wordDict)
 print (fr.reviews)
+print(fr.stopWords)
 
 class Analyzer():
 
@@ -77,13 +81,7 @@ class NegAnalyzer(Analyzer):
 
 
 pa = PosAnalyzer(fr.wordDict, fr.reviews)
-pa.popularity()
 na = NegAnalyzer(fr.wordDict, fr.reviews)
-na.popularity()
-posQ = []
-negQ = []
-counter = 0
-
 pos25 = sorted(pa.countDict, key=pa.countDict.get,reverse=True)[:25]
 print(pos25)
 
