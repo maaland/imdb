@@ -4,13 +4,14 @@ import glob, os
 from abc import abstractmethod
 from heapq import heappush, heappop
 import re
+from collections import defaultdict
 
 
 class FileReader():
 
     def __init__(self):
         self.wordSet = []
-        self.wordDict = {}
+        self.wordDict = defaultdict(int)
         self.reviews = 0
         self.stopWords = open('C:/Users/mariu_000/PycharmProjects/imdb/data/data/stop_words.txt', encoding='utf-8').read()
 
@@ -35,6 +36,8 @@ class FileReader():
         trans_table = dict.fromkeys(map(ord, '$/<>?!"\'"´*=[]\+-%&`:;_")(,. '), None)
         str = str.translate(trans_table)
         str = re.sub('[0-9]', "", str)
+        if str[-2:] == 'br':
+            str = str.replace('br', "")
         return str
 
 
@@ -52,45 +55,64 @@ class Analyzer():
     @abstractmethod
     def popularity(self):
         pass
-
-
+    @abstractmethod
+    def informationValue(self, dictionary):
+        pass
 
 
 class PosAnalyzer(Analyzer):
 
-    def __init__(self, d, n):
-        self.countDict = d
+    def __init__(self, posDict, nP, nT):
+        self.countDict = posDict
         self.popDict = {}
-        self.reviews = n
+        self.infoValue = {}
+        self.positiveReviews = nP
+        self.totalReviews = nT
 
     def popularity(self):
         for word in self.countDict:
-            self.popDict[word] = self.countDict[word]/self.reviews
+            self.popDict[word] = self.countDict[word]/self.positiveReviews
+
+    def informationValue(self, negDict):
+        for word in self.countDict.keys():
+            self.infoValue[word] = self.countDict[word]/(self.countDict[word] + negDict[word])
+
+
+
 
 
 
 class NegAnalyzer(Analyzer):
 
 
-    def __init__(self, dictionary, number):
-        self.countDict = dictionary
+    def __init__(self, negDict, nN, nT):
+        self.countDict = negDict
         self.popDict = {}
-        self.reviews = number
+        self.infoValue = {}
+        self.negativeReviews = nN
+        self.totalReviews = nT
 
     def popularity(self):
         for word in self.countDict:
-            self.popDict[word] = self.countDict[word]/self.reviews
+            self.popDict[word] = self.countDict[word]/self.totalReviews
+
+    def informationValue(self, posDict):
+        for word in self.countDict.keys():
+            self.infoValue[word] = self.countDict[word]/(self.countDict[word] + posDict[word])
 
 
 
 
 
-pa = PosAnalyzer(frP.wordDict, frP.reviews)
-na = NegAnalyzer(frN.wordDict, frN.reviews)
-pos25 = sorted(pa.countDict, key=pa.countDict.get,reverse=True)[:25]
-neg25 = sorted(na.countDict, key=na.countDict.get,reverse=True)[:25]
+pa = PosAnalyzer(frP.wordDict, frP.reviews, (frP.reviews + frN.reviews))
+na = NegAnalyzer(frN.wordDict, frN.reviews, (frP.reviews + frN.reviews))
+pa.informationValue(na.countDict)
+na.informationValue(pa.countDict)
+pos25 = sorted(pa.infoValue, key=pa.infoValue.get,reverse=True)[:25]
+neg25 = sorted(na.infoValue, key=na.infoValue.get,reverse=True)[:25]
 print(pos25)
 print(neg25)
+
 
 
 
