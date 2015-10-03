@@ -38,10 +38,13 @@ class FileReader():
         return str
 
 
-fr = FileReader()
-fr.read_words('C:/Users/mariu_000/PycharmProjects/imdb/data/data/subset/train/neg')
+frP = FileReader()
+frN = FileReader()
+frP.read_words('C:/Users/mariu_000/PycharmProjects/imdb/data/data/subset/train/pos')
+frN.read_words('C:/Users/mariu_000/PycharmProjects/imdb/data/data/subset/train/neg')
 #print (fr.wordDict)
-print (fr.reviews)
+print (frP.reviews)
+print (frN.reviews)
 
 
 class Analyzer():
@@ -82,10 +85,12 @@ class NegAnalyzer(Analyzer):
 
 
 
-pa = PosAnalyzer(fr.wordDict, fr.reviews)
-na = NegAnalyzer(fr.wordDict, fr.reviews)
+pa = PosAnalyzer(frP.wordDict, frP.reviews)
+na = NegAnalyzer(frN.wordDict, frN.reviews)
 pos25 = sorted(pa.countDict, key=pa.countDict.get,reverse=True)[:25]
+neg25 = sorted(na.countDict, key=na.countDict.get,reverse=True)[:25]
 print(pos25)
+print(neg25)
 
 
 
