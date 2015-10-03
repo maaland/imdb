@@ -23,7 +23,9 @@ class FileReader():
             self.reviews = self.reviews + 1
             self.wordSet = set([self.strip_words(word.lower()) for line in open(file, encoding='utf-8') for word in line.split()])   #creates a set with unique, lowercase words from the file
             for word in self.wordSet:
-                if word in self.wordDict:                    #if the word is already in the dict, count up by one
+                if word in self.stopWords:
+                    continue
+                elif word in self.wordDict:                    #if the word is already in the dict, count up by one
                     self.wordDict[word] = self.wordDict[word] + 1
                 else:                                        #if the word is not already in the dict, add it, and add 1
                     self.wordDict[word] = 1
@@ -40,7 +42,7 @@ fr = FileReader()
 fr.read_words('C:/Users/mariu_000/PycharmProjects/imdb/data/data/subset/train/neg')
 #print (fr.wordDict)
 print (fr.reviews)
-print(fr.stopWords)
+
 
 class Analyzer():
 
