@@ -2,6 +2,7 @@ __author__ = 'Marius'
 
 import glob, os
 from abc import abstractmethod
+import re
 
 
 
@@ -26,8 +27,9 @@ class FileReader():
 
 
     def strip_words(self, str):                                #method that removes the characters in the table from the string
-        trans_table = dict.fromkeys(map(ord, '@#$/<>?!:;-_")(,. '), None)
+        trans_table = dict.fromkeys(map(ord, '$/<>?!:;_")(,. '), None)
         str = str.translate(trans_table)
+        str = str.replace("'", "")
         return str
 
 
