@@ -64,21 +64,21 @@ class Analyzer():
 class PosAnalyzer(Analyzer):
 
     def __init__(self, posDict, nP, nT):
-        self.countDict = posDict
+        self.pos_words = posDict
         self.popularityDict = {}
         self.infoValue = {}
         self.positiveReviews = nP
         self.totalReviews = nT
 
-    def popularity(self, negDict):
-        for word in self.countDict:
-            if self.countDict[word] + negDict[word]/self.totalReviews > 0.01:
-                self.popularityDict[word] = self.countDict[word]/self.positiveReviews
+    def popularity(self, neg_words):
+        for word in self.pos_words:
+            if self.pos_words[word] + neg_words[word]/self.totalReviews > 0.01:
+                self.popularityDict[word] = self.pos_words[word]/self.positiveReviews
 
-    def informationValue(self, negDict):
-        for word in self.countDict.keys():
-            if self.countDict[word]+ negDict[word]/self.totalReviews > 0.01:
-                self.infoValue[word] = self.countDict[word]/(self.countDict[word] + negDict[word])
+    def informationValue(self, neg_words):
+        for word in self.pos_words.keys():
+            if self.pos_words[word]+ neg_words[word]/self.totalReviews > 0.01:
+                self.infoValue[word] = self.pos_words[word]/(self.pos_words[word] + neg_words[word])
 
 
 
@@ -89,21 +89,21 @@ class NegAnalyzer(Analyzer):
 
 
     def __init__(self, negDict, nN, nT):
-        self.countDict = negDict
+        self.neg_words = negDict
         self.popularityDict = {}
         self.infoValue = {}
         self.negativeReviews = nN
         self.totalReviews = nT
 
-    def popularity(self, posDict):
-        for word in self.countDict:
-            if self.countDict[word] + posDict[word]/self.totalReviews > 0.01:
-                self.popularityDict[word] = self.countDict[word]/self.negativeReviews
+    def popularity(self, pos_words):
+        for word in self.neg_words:
+            if self.neg_words[word] + pos_words[word]/self.totalReviews > 0.01:
+                self.popularityDict[word] = self.neg_words[word]/self.negativeReviews
 
     def informationValue(self, posDict):
-        for word in self.countDict.keys():
-            if self.countDict[word]+ posDict[word]/self.totalReviews > 0.01:
-                self.infoValue[word] = self.countDict[word]/(self.countDict[word] + posDict[word])
+        for word in self.neg_words.keys():
+            if self.neg_words[word]+ posDict[word]/self.totalReviews > 0.01:
+                self.infoValue[word] = self.neg_words[word]/(self.neg_words[word] + posDict[word])
 
 
 
@@ -111,10 +111,10 @@ class NegAnalyzer(Analyzer):
 
 pa = PosAnalyzer(frP.wordDict, frP.reviews, (frP.reviews + frN.reviews))
 na = NegAnalyzer(frN.wordDict, frN.reviews, (frP.reviews + frN.reviews))
-pa.popularity(na.countDict)
-na.popularity(pa.countDict)
-pos25 = sorted(pa.popularityDict, key=pa.popularityDict.get,reverse=True)[:25]
-neg25 = sorted(na.popularityDict, key=na.popularityDict.get,reverse=True)[:25]
+pa.informationValue(na.neg_words)
+na.informationValue(pa.pos_words)
+pos25 = sorted(pa.infoValue, key=pa.infoValue.get,reverse=True)[:25]
+neg25 = sorted(na.infoValue, key=na.infoValue.get,reverse=True)[:25]
 print(pos25)
 print(neg25)
 
