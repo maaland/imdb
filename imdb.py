@@ -20,9 +20,9 @@ class FileReader():
 
     def read_words(self, path):
         os.chdir(path)
-        for file in glob.glob('*.txt'):
+        for file in glob.glob('0_9.txt'):
             self.reviews = self.reviews + 1
-            self.wordSet = set(re.findall(r'\w+',open(file, encoding='utf-8').read().lower().replace("'", ""))) #creates a set with unique, lowercase words from the file
+            self.wordSet = set(self.n_grams(list(re.findall(r'\w+',open(file, encoding='utf-8').read().lower().replace("'", ""))), 2)) #creates a set with unique, lowercase words from the file
             for word in self.wordSet:
                 if word in self.stopWords or len(word) <= 1:
                     continue
@@ -30,6 +30,16 @@ class FileReader():
                     self.wordDict[word] = self.wordDict[word] + 1
                 else:                                        #if the word is not already in the dict, add it, and add 1
                     self.wordDict[word] = 1
+
+
+    def n_grams(self, wordList, nValue):    #makes nValue-grams of the words in the wordlist
+        ngram_list = []
+        for idx in range(1+len(wordList)- nValue):
+            if wordList[idx] in self.stopWords and wordList[idx+nValue-1] in self.stopWords:    #skips the n-gram if both the words are stopwords
+                continue
+            ngram_list.append('_'.join(wordList[idx:idx+nValue]))
+        return ngram_list
+
 
 
     '''def strip_words(self, str):                                #method that removes the characters in the table from the string
@@ -45,10 +55,11 @@ frP = FileReader()
 frN = FileReader()
 frP.read_words('C:/Users/mariu_000/PycharmProjects/imdb/data/data/subset/train/pos')
 frN.read_words('C:/Users/mariu_000/PycharmProjects/imdb/data/data/subset/train/neg')
-#print (frP.wordDict)
+print (frP.wordDict)
+print(frP.wordSet)
 #print(frN.wordDict)
-print (frP.reviews)
-print (frN.reviews)
+#print (frP.reviews)
+#print (frN.reviews)
 
 
 class Analyzer():
@@ -109,7 +120,7 @@ class NegAnalyzer(Analyzer):
 
 
 
-pa = PosAnalyzer(frP.wordDict, frP.reviews, (frP.reviews + frN.reviews))
+'''pa = PosAnalyzer(frP.wordDict, frP.reviews, (frP.reviews + frN.reviews))
 na = NegAnalyzer(frN.wordDict, frN.reviews, (frP.reviews + frN.reviews))
 pa.informationValue(na.neg_words)
 na.informationValue(pa.pos_words)
@@ -117,7 +128,7 @@ pos25 = sorted(pa.infoValue, key=pa.infoValue.get,reverse=True)[:25]
 neg25 = sorted(na.infoValue, key=na.infoValue.get,reverse=True)[:25]
 print(pos25)
 print(neg25)
-
+'''
 
 
 
