@@ -20,7 +20,7 @@ class FileReader():
 
     def read_words(self, path):
         os.chdir(path)
-        for file in glob.glob('0_9.txt'):
+        for file in glob.glob('*.txt'):
             self.reviews = self.reviews + 1
             self.wordSet = set(re.findall(r'\w+',open(file, encoding='utf-8').read().lower().replace("'", ""))) #creates a set with unique, lowercase words from the file
             for word in self.wordSet:
@@ -44,17 +44,17 @@ class FileReader():
 frP = FileReader()
 frN = FileReader()
 frP.read_words('C:/Users/mariu_000/PycharmProjects/imdb/data/data/subset/train/pos')
-#frN.read_words('C:/Users/mariu_000/PycharmProjects/imdb/data/data/subset/train/neg')
-print (frP.wordDict)
-print(frP.wordSet)
+frN.read_words('C:/Users/mariu_000/PycharmProjects/imdb/data/data/subset/train/neg')
+#print (frP.wordDict)
+#print(frN.wordDict)
 print (frP.reviews)
-#print (frN.reviews)
+print (frN.reviews)
 
 
 class Analyzer():
 
     @abstractmethod
-    def popularity(self):
+    def popularity(self, dictionary):
         pass
     @abstractmethod
     def informationValue(self, dictionary):
@@ -65,19 +65,20 @@ class PosAnalyzer(Analyzer):
 
     def __init__(self, posDict, nP, nT):
         self.countDict = posDict
-        self.popDict = {}
+        self.popularityDict = {}
         self.infoValue = {}
         self.positiveReviews = nP
         self.totalReviews = nT
 
-    def popularity(self):
+    def popularity(self, negDict):
         for word in self.countDict:
-            if self.countDict[word]/self.positiveReviews > 0.001:
-                self.popDict[word] = self.countDict[word]/self.positiveReviews
+            if self.countDict[word] + negDict[word]/self.totalReviews > 0.01:
+                self.popularityDict[word] = self.countDict[word]/self.positiveReviews
 
     def informationValue(self, negDict):
         for word in self.countDict.keys():
-            self.infoValue[word] = self.countDict[word]/(self.countDict[word] + negDict[word])
+            if self.countDict[word]+ negDict[word]/self.totalReviews > 0.01:
+                self.infoValue[word] = self.countDict[word]/(self.countDict[word] + negDict[word])
 
 
 
@@ -89,32 +90,33 @@ class NegAnalyzer(Analyzer):
 
     def __init__(self, negDict, nN, nT):
         self.countDict = negDict
-        self.popDict = {}
+        self.popularityDict = {}
         self.infoValue = {}
         self.negativeReviews = nN
         self.totalReviews = nT
 
-    def popularity(self):
+    def popularity(self, posDict):
         for word in self.countDict:
-            if self.countDict[word]/self.negativeReviews > 0.001:
-                self.popDict[word] = self.countDict[word]/self.totalReviews
+            if self.countDict[word] + posDict[word]/self.totalReviews > 0.01:
+                self.popularityDict[word] = self.countDict[word]/self.negativeReviews
 
     def informationValue(self, posDict):
         for word in self.countDict.keys():
-            self.infoValue[word] = self.countDict[word]/(self.countDict[word] + posDict[word])
+            if self.countDict[word]+ posDict[word]/self.totalReviews > 0.01:
+                self.infoValue[word] = self.countDict[word]/(self.countDict[word] + posDict[word])
 
 
 
 
 
-'''pa = PosAnalyzer(frP.wordDict, frP.reviews, (frP.reviews + frN.reviews))
+pa = PosAnalyzer(frP.wordDict, frP.reviews, (frP.reviews + frN.reviews))
 na = NegAnalyzer(frN.wordDict, frN.reviews, (frP.reviews + frN.reviews))
-pa.informationValue(na.countDict)
-na.informationValue(pa.countDict)
-pos25 = sorted(pa.infoValue, key=pa.infoValue.get,reverse=True)[:25]
-neg25 = sorted(na.infoValue, key=na.infoValue.get,reverse=True)[:25]
+pa.popularity(na.countDict)
+na.popularity(pa.countDict)
+pos25 = sorted(pa.popularityDict, key=pa.popularityDict.get,reverse=True)[:25]
+neg25 = sorted(na.popularityDict, key=na.popularityDict.get,reverse=True)[:25]
 print(pos25)
-print(neg25)'''
+print(neg25)
 
 
 
