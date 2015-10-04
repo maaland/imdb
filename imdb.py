@@ -22,7 +22,7 @@ class FileReader():
         os.chdir(path)
         for file in glob.glob('*.txt'):
             self.reviews = self.reviews + 1
-            self.wordSet = set(self.n_grams(list(re.findall(r'\w+',open(file, encoding='utf-8').read().lower().replace("'", ""))), 2)) #creates a set with unique, lowercase words from the file
+            self.wordSet = set(re.findall(r'\w+',open(file, encoding='utf-8').read().lower().replace("'", ""))) #creates a set with unique, lowercase words from the file
             for word in self.wordSet:
                 if word in self.stopWords or len(word) <= 1:
                     continue
@@ -92,7 +92,7 @@ class PosAnalyzer(Analyzer):
             if (self.pos_words[word]+ neg_words[word])/self.totalReviews > 0.05:
                 self.infoValue[word] = self.pos_words[word]/(self.pos_words[word] + neg_words[word])
 
-    def prune(self, pos_words, neg_words):
+    def prune(self, pos_words, neg_words):              #not required
         pos_vocab = {}
         for word in pos_words.keys():
             if (pos_words[word] + neg_words[word])/self.totalReviews > 0.01:
@@ -135,11 +135,8 @@ na.informationValue(pa.pos_words)
 pos25 = sorted(pa.infoValue, key=pa.infoValue.get,reverse=True)[:25]
 neg25 = sorted(na.infoValue, key=na.infoValue.get,reverse=True)[:25]
 print(pos25)
-print(pa.infoValue['the_best'])
-print(pa.infoValue['as_well'])
 print(neg25)
-print(na.infoValue['could_have'])
-print(na.infoValue['the_worst'])
+
 
 
 
